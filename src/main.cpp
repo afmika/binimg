@@ -25,7 +25,7 @@ public:
         return content != nullptr && size() != 0;
     }
 
-    inline size_t size () const { 
+    inline size_t size() const { 
         return static_cast<size_t>(width * height * n_comp);
     }
 
@@ -62,7 +62,6 @@ void check(const Image& img) {
 // test filter
 void BlackWhite(const Image& img) {
     check(img);
-    int n_bytes;
     for (size_t p = 0; p < img.size(); p += 4) {
         int total = img.content[p + 0] 
             + img.content[p + 1] 
