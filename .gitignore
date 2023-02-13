@@ -1,5 +1,7 @@
 # custom
 bin
+*.jpg
+*.png
 
 # Prerequisites
 *.d
