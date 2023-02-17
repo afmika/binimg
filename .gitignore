@@ -2,6 +2,7 @@
 bin
 *.jpg
 *.png
+.vscode
 
 # Prerequisites
 *.d
