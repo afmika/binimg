@@ -5,24 +5,35 @@
 
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 
-class Image {
+class Bytes {
+public:
+    uint8_t* content = nullptr;
+    Bytes(uint8_t* bytes_seq) {
+        content = bytes_seq;
+    }
+    virtual size_t size() const = 0; 
+    virtual void loadFromFile(std::string filename) = 0;
+    virtual void saveToFile(std::string filename) const = 0;
+    virtual void printInfos() const = 0;
+    inline bool isLoaded() const {
+        return content != nullptr && size() != 0;
+    }
+};
+
+class Image : public Bytes {
 private:
     int n_comp = 4;
 public:
-    uint8_t* content = nullptr;
     int width = 0;
     int height = 0;
 
-    Image() {};
+    Image(): Bytes(nullptr) {};
 
-    Image(uint8_t* content, int width, int height) {
+    Image(uint8_t* content, int width, int height)
+    : Bytes((uint8_t*) malloc(width * height * n_comp)) {
         n_comp = 4;
-        content = (uint8_t*) malloc(width * height * n_comp);
-    }
-    
-    inline bool isLoaded() const {
-        return content != nullptr && size() != 0;
     }
 
     inline size_t size() const { 
@@ -42,8 +53,8 @@ public:
         stbi_write_png(filename.c_str(), width, height, n_comp, content, 0);
     }
 
-    void printInfos() {
-        printf("width = %d, height = %d, comp_per_px %d, total %d\n", width, height, compSize(), size());
+    void printInfos() const {
+        printf("\nwidth = %d, height = %d, comp_per_px %d, total %d\n", width, height, compSize(), size());
     }
 
     ~Image() {
@@ -51,6 +62,49 @@ public:
     }
 };
 
+class File : public Bytes {
+private:
+    int n_bytes = 0;
+    std::string filename = "";
+public:
+    File(): Bytes(nullptr)  {}
+    
+    size_t size() const {
+        return n_bytes;
+    } 
+
+    void loadFromFile(std::string _filename) {
+        filename = _filename;
+        n_bytes = File::computeSize(filename);
+        content = (uint8_t*) malloc(n_bytes);
+        
+        std::ifstream file(filename, std::ios::binary);
+        int p = 0;
+        for (; !file.eof(); content[p++] = file.get());
+        assert((p - 1) == size());
+        file.close();
+    }
+
+    void saveToFile(std::string filename) const {
+        std::ofstream file(filename, std::ios::out | std::ios::binary);
+        file.write((char *) content, size());
+    }
+
+    void printInfos() const {
+        printf("\nsize = %d, name = %s\n", size(), filename.c_str());
+    }
+
+    static size_t computeSize(std::string filename) {
+        std::ifstream in(filename, std::ios::ate | std::ios::binary);
+        int size = in.tellg();
+        in.close();
+        return size;
+    }
+
+    ~File() {
+        free(content);
+    }
+};
 
 void check(const Image& img) {
     if (!img.isLoaded()) {
@@ -74,7 +128,7 @@ void BlackWhite(const Image& img) {
     }
 }
 
-void encode(const Image& img) {
+void encode(const Image& img, const Bytes& file) {
     check(img);
     int n_bytes;
     for (size_t p = 0; p < img.size(); p += 4) {
@@ -96,5 +150,12 @@ int main() {
         test.printInfos();
         BlackWhite(test);
         test.saveToFile("sample.png");
+    }
+
+    File file;
+    file.loadFromFile("b.jpg");
+    if (file.isLoaded()) {
+        file.printInfos();
+        file.saveToFile("qq.jpg");
     }
 }
