@@ -64,7 +64,7 @@ public:
 
 class File : public Bytes {
 private:
-    int n_bytes = 0;
+    size_t n_bytes = 0;
     std::string filename = "";
 public:
     File(): Bytes(nullptr)  {}
@@ -79,6 +79,10 @@ public:
         content = (uint8_t*) malloc(n_bytes);
         
         std::ifstream file(filename, std::ios::binary);
+        if (!file.is_open()) {
+            std::cout << "Unable to open file " << filename << "\n";
+            exit(1);
+        }
         int p = 0;
         for (; !file.eof(); content[p++] = file.get());
         assert((p - 1) == size());
@@ -92,6 +96,10 @@ public:
 
     void saveToFile(std::string filename) const {
         std::ofstream file(filename, std::ios::out | std::ios::binary);
+        if (!file.is_open()) {
+            std::cout << "Unable to open file " << filename << "\n";
+            exit(1);
+        }
         file.write((char *) content, size());
     }
 
@@ -105,7 +113,11 @@ public:
 
     static size_t computeSize(std::string filename) {
         std::ifstream in(filename, std::ios::ate | std::ios::binary);
-        int size = in.tellg();
+        if (!in.is_open()) {
+            std::cout << "Unable to open file " << filename << "\n";
+            exit(1);
+        }
+        size_t size = in.tellg();
         in.close();
         return size;
     }
@@ -141,9 +153,12 @@ void encode(const Image& img, const File& file) {
 
     size_t target_size = file.size();
     // 4 bits per pixel
-    // -4 for the header (4 * 8 = 32 bits)
-    size_t header_offset = 4;
-    size_t available_size = img.size() / 2 - header_offset;
+    size_t n_pixels = img.size() / img.compSize();
+    // 1 pixel for the header (32 bits)
+    size_t available_size = n_pixels / 8 - 1;
+
+    std::cout << "Target size " << target_size << "\n";
+    std::cout << "Available size " << available_size << "\n";
 
     if (target_size > available_size) {
         std::cerr << "\nImage cannot contain the file (not enough place)";

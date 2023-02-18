@@ -1,7 +1,6 @@
 # custom
 bin
 *.jpg
-*.png
 .vscode
 
 # Prerequisites
