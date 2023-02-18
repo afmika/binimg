@@ -80,7 +80,7 @@ public:
         
         std::ifstream file(filename, std::ios::binary);
         if (!file.is_open()) {
-            std::cout << "Unable to open file " << filename << "\n";
+            std::cerr << "Unable to open file " << filename << "\n";
             exit(1);
         }
         int p = 0;
@@ -97,7 +97,7 @@ public:
     void saveToFile(std::string filename) const {
         std::ofstream file(filename, std::ios::out | std::ios::binary);
         if (!file.is_open()) {
-            std::cout << "Unable to open file " << filename << "\n";
+            std::cerr << "Unable to open file " << filename << "\n";
             exit(1);
         }
         file.write((char *) content, size());
@@ -114,7 +114,7 @@ public:
     static size_t computeSize(std::string filename) {
         std::ifstream in(filename, std::ios::ate | std::ios::binary);
         if (!in.is_open()) {
-            std::cout << "Unable to open file " << filename << "\n";
+            std::cerr << "Unable to open file " << filename << "\n";
             exit(1);
         }
         size_t size = in.tellg();
