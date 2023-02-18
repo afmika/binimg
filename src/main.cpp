@@ -160,7 +160,7 @@ void encode(const Image& img, const File& file) {
     std::cout << "Available size " << available_size << "\n";
 
     if (target_size > available_size) {
-        std::cerr << "\nImage cannot contain the file (not enough place)";
+        std::cerr << "\nImage cannot contain target file (not enough space)";
         std::cerr << "\n" << target_size << " > " << available_size;
         exit(1);
     }
