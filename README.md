@@ -17,5 +17,4 @@ binimg decode container output
 binimg encode container.png somefile.mp4
 binimg decode encoded.png result.mp4
 binimg decode examples/decode-me.png not-a-rickroll.mp4
-binimg decode examples/decode-me.png safepic.mp4
 ```
