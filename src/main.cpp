@@ -95,6 +95,10 @@ public:
         file.write((char *) content, size());
     }
 
+    void setName(std::string name) {
+        filename = name;
+    }
+
     void printInfos() const {
         printf("\nsize = %d, name = %s\n", size(), filename.c_str());
     }
@@ -116,19 +120,18 @@ public:
     }
 };
 
-void check(const Bytes& img) {
+inline void check(const Bytes& img) {
     if (!img.isLoaded()) {
         std::cerr << "File not loaded (invalid or corrupted?)";
         exit(1);
     }
 }
 
-void writeOffset(uint8_t* byte, uint8_t data, uint8_t offset) {
-    uint8_t temp = *byte;
+inline void writeOffset(uint8_t* byte, uint8_t data, uint8_t offset) {
     *byte = (*byte & ~0b11) | (data >> offset);
 }
 
-void readOffset(uint8_t* byte, uint8_t* data, uint8_t offset) {
+inline void readOffset(uint8_t* byte, uint8_t* data, uint8_t offset) {
     *data |= (*byte & 0b11) << offset;
 }
 
@@ -173,7 +176,7 @@ void decode(const Image& img, File& file) {
     target_size |= (0xFFFFFFFF & img.content[p++]) << 8;
     target_size |= (0xFFFFFFFF & img.content[p++]) << 0;
 
-    std::cout << "\nLoading " << target_size << " bytes";
+    std::cout << "\nLoading " << target_size << " bytes\n";
     file.allocate(target_size);
     for (size_t i = 0; i < target_size; i++) {
         // reconstruct the byte
@@ -206,14 +209,54 @@ void testEncodeDecode() {
 
 
 void help() {
-    std::cout << "binimg encode container input" << std::endl;
-    std::cout << "binimg decode container" << std::endl;
-    std::cout << "Examples: " << std::endl;
-    std::cout << "binimg encode container.png rickroll.mp4" << std::endl;
-    std::cout << "binimg decode encoded.png" << std::endl;
+    std::cout << "bingimg v1 - afmika\n";
+    std::cout << "# Usage\n";
+    std::cout << "  binimg encode container input\n";
+    std::cout << "  binimg decode container output\n";
+    std::cout << "# Examples \n";
+    std::cout << "  binimg encode container.png rickroll.mp4\n";
+    std::cout << "  binimg decode encoded.png output.mp4\n";
 }
 
-int main(int argc, char** argv) {
-    testEncodeDecode();
+int main(int argc, const char* argv[]) {
+    if (argc < 4) {
+        help();
+        return 0;
+    }
+
+    if (argc == 4) {
+        int pos = 1;
+        std::string command(argv[pos++]);
+        std::string img_container(argv[pos++]);
+        std::string filename(argv[pos++]);
+        Image img;
+        img.loadFromFile(img_container);
+        if (command.compare("encode") == 0) {
+            std::cout << "Injecting " << filename << "\n";
+            std::cout << "Into container " << img_container << "\n";
+            std::cout << "Please wait ...\n";
+            
+            File file;
+            file.loadFromFile(filename);
+            encode(img, file);
+
+            std::string result_name = "encoded.png";
+            img.saveToFile(result_name);
+            std::cout << "Saved as " << result_name;
+        } else if (command.compare("decode") == 0) {
+            std::cout << "Decoding file stored inside " << img_container << "\n";
+            std::cout << "Please wait ...\n";
+
+            File dest_file;
+            decode(img, dest_file);
+
+            dest_file.saveToFile(filename);
+            std::cout << "Saved as " << filename;
+        }
+        return 0;
+    }
+
+    std::cout << "Invalid command\n";
+    help();
     return 0;
 }
