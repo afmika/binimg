@@ -154,8 +154,9 @@ void encode(const Image& img, const File& file) {
     size_t target_size = file.size();
     // 4 bits per pixel
     size_t n_pixels = img.size() / img.compSize();
+    size_t alpha_count = n_pixels / 4;
     // 1 pixel for the header (32 bits)
-    size_t available_size = n_pixels / 8 - 1;
+    size_t available_size = n_pixels / 2 - 1 - alpha_count;
 
     std::cout << "Target size " << target_size << "\n";
     std::cout << "Available size " << available_size << "\n";
@@ -174,10 +175,16 @@ void encode(const Image& img, const File& file) {
     img.content[p++] = target_size >> 8;
     img.content[p++] = target_size >> 0;
     // body
-    for (size_t i = 0; i < target_size; i++) {
-        int offset = 8;
-        while(offset >= 0)
-            writeOffset(img.content + p++, file.content[i], offset--);
+    // note: add redundancy to uniformize the noise
+    while(true) {
+        for (size_t i = 0; i < target_size; i++) {
+            int offset = 7;
+            while(offset >= 0) {
+                if (p >= img.size()) return; // stop redundancy
+                if (p % 4 == 0 && p > 0) p++; // skip alpha
+                writeOffset(img.content + p++, file.content[i], offset--);
+            }
+        }
     }
 }
 
@@ -194,9 +201,11 @@ void decode(const Image& img, File& file) {
     file.allocate(target_size);
     for (size_t i = 0; i < target_size; i++) {
         file.content[i] = 0;
-        int offset = 8;
-        while(offset >= 0)
+        int offset = 7;
+        while(offset >= 0) {
+            if (p % 4 == 0 && p > 0) p++; // skip alpha
             readOffset(img.content + p++, file.content + i, offset--);
+        }
     }
 }
 
