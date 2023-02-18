@@ -128,11 +128,11 @@ inline void check(const Bytes& img) {
 }
 
 inline void writeOffset(uint8_t* byte, uint8_t data, uint8_t offset) {
-    *byte = (*byte & ~0b11) | (data >> offset);
+    *byte = (*byte & ~0b1) | (data >> offset);
 }
 
 inline void readOffset(uint8_t* byte, uint8_t* data, uint8_t offset) {
-    *data |= (*byte & 0b11) << offset;
+    *data |= (*byte & 0b1) << offset;
 }
 
 void encode(const Image& img, const File& file) {
@@ -140,10 +140,10 @@ void encode(const Image& img, const File& file) {
     check(file);
 
     size_t target_size = file.size();
-    // let's do 2 bits per color component
+    // 4 bits per pixel
     // -4 for the header (4 * 8 = 32 bits)
     size_t header_offset = 4;
-    size_t available_size = img.size() / img.compSize() - header_offset;
+    size_t available_size = img.size() / 2 - header_offset;
 
     if (target_size > available_size) {
         std::cerr << "\nImage cannot contain the file (not enough place)";
@@ -160,10 +160,9 @@ void encode(const Image& img, const File& file) {
     img.content[p++] = target_size >> 0;
     // body
     for (size_t i = 0; i < target_size; i++) {
-        writeOffset(img.content + p++, file.content[i], 6);
-        writeOffset(img.content + p++, file.content[i], 4);
-        writeOffset(img.content + p++, file.content[i], 2);
-        writeOffset(img.content + p++, file.content[i], 0);
+        int offset = 8;
+        while(offset >= 0)
+            writeOffset(img.content + p++, file.content[i], offset--);
     }
 }
 
@@ -176,37 +175,15 @@ void decode(const Image& img, File& file) {
     target_size |= (0xFFFFFFFF & img.content[p++]) << 8;
     target_size |= (0xFFFFFFFF & img.content[p++]) << 0;
 
-    std::cout << "\nLoading " << target_size << " bytes\n";
+    std::cout << "\nLoading " << target_size << " bytes from container\n";
     file.allocate(target_size);
     for (size_t i = 0; i < target_size; i++) {
-        // reconstruct the byte
         file.content[i] = 0;
-        readOffset(img.content + p++, file.content + i, 6);
-        readOffset(img.content + p++, file.content + i, 4);
-        readOffset(img.content + p++, file.content + i, 2);
-        readOffset(img.content + p++, file.content + i, 0);
+        int offset = 8;
+        while(offset >= 0)
+            readOffset(img.content + p++, file.content + i, offset--);
     }
 }
-
-
-void testEncodeDecode() {
-    // encode
-    Image img;
-    File file;
-    img.loadFromFile("b.jpg");
-    file.loadFromFile("a.jpg");
-    encode(img, file);
-    img.saveToFile("result.png");
-
-    // decode
-    Image img_result;
-    img_result.loadFromFile("result.png");
-    File dest_file;
-    decode(img_result, dest_file);
-    assert(dest_file.isLoaded());
-    dest_file.saveToFile("decoded.png");
-}
-
 
 void help() {
     std::cout << "bingimg v1 - afmika\n";

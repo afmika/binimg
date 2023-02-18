@@ -14,6 +14,8 @@ binimg decode container output
 ```
 # Examples
 ```bash
-binimg encode container.png rickroll.mp4
-binimg decode encoded.png output.mp4
+binimg encode container.png somefile.mp4
+binimg decode encoded.png result.mp4
+binimg decode examples/decode-me.png not-a-rickroll.mp4
+binimg decode examples/decode-me.png safepic.mp4
 ```
