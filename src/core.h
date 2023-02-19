@@ -1,9 +1,9 @@
 #pragma once
 #include "abstraction.h"
 
-inline void check(const Bytes& img) {
-    if (!img.isLoaded()) {
-        std::cerr << "File not loaded (invalid or corrupted?)";
+inline void check(const Bytes& data, const std::string& label) {
+    if (!data.isLoaded()) {
+        std::cerr << "Error: " << label << " not loaded";
         exit(1);
     }
 }
@@ -65,8 +65,8 @@ inline void readInt32(uint8_t* byte, size_t& cursor, size_t& value) {
 }
 
 void encode(const Image& img, const File& file) {
-    check(img);
-    check(file);
+    check(img, "container image");
+    check(file, "file to hide");
 
     std::string filename = file.getNameOrDefault();
     size_t target_size = file.size();
@@ -115,7 +115,7 @@ void encode(const Image& img, const File& file) {
 }
 
 void decode(const Image& img, File& file) {
-    check(img);
+    check(img, "container image");
     std::string header, filename;
     size_t target_size = 0;
     size_t filename_size = 0;

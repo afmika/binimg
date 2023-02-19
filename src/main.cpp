@@ -29,7 +29,7 @@ int main(int argc, const char* argv[]) {
             std::cout << "Injecting \"" << File::getNameFromPath(filename) << "\"\n";
             std::cout << "Into container " << File::getNameFromPath(img_container) << "\n";
             std::cout << "Please wait ...\n";
-            
+
             File file;
             file.loadFromFile(filename);
             encode(img, file);

@@ -59,6 +59,7 @@
         "xutility": "cpp",
         "ratio": "cpp",
         "chrono": "cpp",
-        "codecvt": "cpp"
+        "codecvt": "cpp",
+        "thread": "cpp"
     }
 }

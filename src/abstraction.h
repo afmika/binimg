@@ -81,15 +81,12 @@ public:
         filename = _filename;
         n_bytes = File::computeSize(filename);
         content = (uint8_t*) malloc(n_bytes);
-        
-        std::ifstream file(filename, std::ios::binary);
+        std::fstream file(filename, std::ios::in | std::ios::binary);
         if (!file.is_open()) {
             std::cerr << "Error: unable to open file " << filename << "\n";
             exit(1);
         }
-        int p = 0;
-        for (; !file.eof(); content[p++] = file.get());
-        assert((p - 1) == size());
+        file.read(reinterpret_cast<char*>(content), n_bytes);
         file.close();
     }
 
@@ -99,12 +96,13 @@ public:
     }
 
     void saveToFile(std::string filename) const {
-        std::ofstream file(filename, std::ios::out | std::ios::binary);
+        std::fstream file(filename, std::ios::out | std::ios::binary);
         if (!file.is_open()) {
             std::cerr << "Error: unable to open file " << filename << "\n";
             exit(1);
         }
-        file.write((const char *) content, size());
+        file.write(reinterpret_cast<const char*>(content), size());
+        file.close();
     }
 
     void setName(std::string name) {
@@ -122,7 +120,7 @@ public:
     }
 
     static size_t computeSize(std::string filename) {
-        std::ifstream in(filename, std::ios::ate | std::ios::binary);
+        std::fstream in(filename, std::ios::in | std::ios::ate | std::ios::binary);
         if (!in.is_open()) {
             std::cerr << "Unable to open file " << filename << "\n";
             exit(1);
@@ -140,7 +138,7 @@ public:
         return path.substr(0, getNameFromPath(path).find_last_of('.'));
     }
     
-    inline void allocate(size_t size) {
+    void allocate(size_t size) {
         n_bytes = size;
         content = (uint8_t*) malloc(size);
     }
