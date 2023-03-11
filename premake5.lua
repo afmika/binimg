@@ -6,8 +6,8 @@ project "binimg"
     kind "ConsoleApp"
     language "C++"
 
-	targetdir "%{wks.location}/bin/%{cfg.buildcfg}/%{prj.name}"
-	objdir "%{wks.location}/obj/%{cfg.buildcfg}/%{prj.name}"
+    targetdir "%{wks.location}/bin/%{cfg.buildcfg}/%{prj.name}"
+    objdir "%{wks.location}/obj/%{cfg.buildcfg}/%{prj.name}"
 
     files { "src/**.h", "src/**.cpp" }
 

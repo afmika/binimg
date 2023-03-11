@@ -33,7 +33,7 @@ inline void readText(uint8_t* byte, size_t& cursor, std::string& container, cons
         int offset = 8;
         while(offset >= 0) {
             offset -= 2;
-            readOffset(byte + cursor++, (uint8_t*)(text + i), offset);
+            readOffset(byte + cursor++, reinterpret_cast<uint8_t*>(text + i), offset);
         }
     }
     text[size] = '\0';
@@ -100,7 +100,6 @@ void encode(const Image& img, const File& file) {
     std::cout << "Header written\n";
     // body
     // note: add redundancy to uniformize the noise
-    size_t start = p;
     while(true) {
         for (size_t i = 0; i < target_size; i++) {
             int offset = 8;
@@ -137,7 +136,7 @@ void decode(const Image& img, File& file) {
     // extract binary file size
     readInt32(img.content, p, target_size);
 
-    std::cout << "File " << filename << " detected\n";
+    std::cout << "File \"" << filename << "\" detected\n";
     std::cout << "Loading " << target_size << " bytes from container\n";
     file.allocate(target_size);
     for (size_t i = 0; i < target_size; i++) {

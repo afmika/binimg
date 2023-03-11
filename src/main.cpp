@@ -2,7 +2,7 @@
 #include "core.h"
 
 void help() {
-    std::cout << "bingimg v1 - afmika\n";
+    std::cout << "binimg v1 - afmika\n";
     std::cout << "# Usage\n";
     std::cout << "  binimg encode container input\n";
     std::cout << "  binimg decode container output\n";
@@ -12,8 +12,18 @@ void help() {
     std::cout << "  binimg decode encoded.png\n";
 }
 
+void invalid(std::string msg = "") {
+    std::cerr << "Invalid command";
+    if (!msg.empty()) std::cerr << ":" << msg;
+    std::cerr << '\n';
+}
+
 int main(int argc, const char* argv[]) {
-    if (argc < 3) {
+    if (argc <= 2) {
+        if (argc == 2) {
+            std::string command(argv[1]);
+            if (command.compare("-h") != 0) invalid();
+        }
         help();
         return 0;
     }
@@ -27,7 +37,7 @@ int main(int argc, const char* argv[]) {
         if (command.compare("encode") == 0 && argc == 4) {
             std::string filename(argv[pos++]);
             std::cout << "Injecting \"" << File::getNameFromPath(filename) << "\"\n";
-            std::cout << "Into container " << File::getNameFromPath(img_container) << "\n";
+            std::cout << "Into container \"" << File::getNameFromPath(img_container) << "\"\n";
             std::cout << "Please wait ...\n";
 
             File file;
@@ -36,12 +46,12 @@ int main(int argc, const char* argv[]) {
 
             std::string result_name = "encoded." + File::removeExtension(file.getNameOrDefault()) + ".png";
             img.saveToFile(result_name);
-            std::cout << "Saved as " << result_name;
+            std::cout << "Saved as \"" << result_name << "\"";
             return 0;
         }
         
         if (command.compare("decode") == 0) {
-            std::cout << "Decoding file stored inside " << img_container << "\n";
+            std::cout << "Decoding file stored inside \"" << img_container << "\"\n";
             std::cout << "Please wait ...\n";
 
             File dest_file;
@@ -51,12 +61,12 @@ int main(int argc, const char* argv[]) {
                 filename = std::string(argv[pos++]);
 
             dest_file.saveToFile(filename);
-            std::cout << "Saved as " << filename;
+            std::cout << "Saved as \"" << filename << "\"";
             return 0;
         }
     }
 
-    std::cout << "Invalid command\n";
+    invalid();
     help();
     return 0;
 }
