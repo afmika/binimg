@@ -16,7 +16,7 @@ inline void readOffset(uint8_t* byte, uint8_t* data, const uint8_t offset) {
     *data |= (*byte & 0b11) << offset;
 }
 
-inline void writeText(uint8_t* byte, size_t& cursor, const std::string& text) {
+void writeText(uint8_t* byte, size_t& cursor, const std::string& text) {
     for (int i = 0; i < text.size(); i++) {
         int offset = 8;
         while(offset >= 0) {
