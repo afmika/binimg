@@ -26,7 +26,7 @@ inline void writeText(uint8_t* byte, size_t& cursor, const std::string& text) {
     }
 }
 
-inline void readText(uint8_t* byte, size_t& cursor, std::string& container, const size_t size) {
+void readText(uint8_t* byte, size_t& cursor, std::string& container, const size_t size) {
     char text[size];
     for (int i = 0; i < size; i++) {
         text[i] = 0;
@@ -40,7 +40,7 @@ inline void readText(uint8_t* byte, size_t& cursor, std::string& container, cons
     container = std::string(text);
 }
 
-inline void writeInt32(uint8_t* byte, size_t& cursor, const size_t& value) {
+void writeInt32(uint8_t* byte, size_t& cursor, const size_t& value) {
     for (int k = 24; k >= 0; k -= 8) {
         uint8_t data = (value >> k) & 0xFF;
         int offset = 8;
@@ -51,7 +51,7 @@ inline void writeInt32(uint8_t* byte, size_t& cursor, const size_t& value) {
     }
 }
 
-inline void readInt32(uint8_t* byte, size_t& cursor, size_t& value) {
+void readInt32(uint8_t* byte, size_t& cursor, size_t& value) {
     value = 0;
     for (int k = 24; k >= 0; k -= 8) {
         uint8_t data = 0;
