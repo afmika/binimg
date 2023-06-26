@@ -5,7 +5,6 @@ Hide any binary file inside a picture !
 ```
 git clone --recursive https://github.com/afmika/binimg.git
 cd binimg
-premake5 gmake
 make
 ```
 
